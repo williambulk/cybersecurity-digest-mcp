@@ -1,0 +1,57 @@
+name: Stack & Site Status Digest
+
+on:
+  schedule:
+    # Daily Digest at 8:00 AM Vancouver Time (15:00 UTC PDT / 16:00 UTC PST)
+    - cron: '0 15 * * *'
+    # 15-Minute Site & Urgent Monitor (throttles to 1h outside 8am-6pm Vancouver time)
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode (daily or urgent)'
+        required: true
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - urgent
+
+jobs:
+  run-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Restore deduplication state cache
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: digest-state-${{ github.run_id }}
+          restore-keys: |
+            digest-state-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Digest / Monitor
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MONITORED_DOMAINS: ${{ secrets.MONITORED_DOMAINS }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TIMEZONE: America/Vancouver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "daily" ]; then
+            node src/cli.js --slack
+          elif [ "${{ github.event.schedule }}" = "0 15 * * *" ]; then
+            node src/cli.js --slack
+          else
+            node src/cli.js --urgent --slack
+          fi

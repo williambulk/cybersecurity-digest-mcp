@@ -1,0 +1,38 @@
+{
+  "name": "cybersecurity-digest-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) server for real-time cybersecurity advisories, CVEs, zero-days, and platform breaking changes across PHP, WordPress, Sanity CMS, Statamic CMS, JavaScript/Node.js, Nuxt.js, and Next.js.",
+  "type": "module",
+  "main": "src/mcp-server.js",
+  "bin": {
+    "cybersecurity-digest-mcp": "./src/mcp-server.js"
+  },
+  "scripts": {
+    "start": "node src/mcp-server.js",
+    "mcp": "node src/mcp-server.js",
+    "dry-run": "node src/cli.js --dry-run",
+    "urgent:dry-run": "node src/cli.js --urgent --dry-run",
+    "slack": "node src/cli.js --slack"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cybersecurity",
+    "cve",
+    "security-digest",
+    "wordpress",
+    "php",
+    "nextjs",
+    "nuxt",
+    "sanity",
+    "statamic",
+    "slack"
+  ],
+  "author": "William Kunitake",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^2.3.0",
+    "dotenv": "^16.4.7",
+    "fast-xml-parser": "^5.0.8"
+  }
+}
